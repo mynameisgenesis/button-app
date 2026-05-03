@@ -128,7 +128,12 @@ export default function HomeScreen() {
   });
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { marginTop: insets.top, marginBottom: insets.bottom },
+      ]}
+    >
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>BIG RED BUTTON</Text>
