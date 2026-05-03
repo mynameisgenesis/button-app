@@ -28,7 +28,7 @@
           "iCloudContainerEnvironment": "Production"
         }
       ],
-      "expo-av"
+      "expo-audio"
     ]
   }
 }
