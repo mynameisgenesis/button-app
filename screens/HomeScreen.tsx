@@ -30,6 +30,7 @@ export default function HomeScreen() {
   const glowAnim = useRef(new Animated.Value(0)).current;
   const soundRef = useRef<AudioPlayer | null>(null);
   const subscriptionRef = useRef<any>(null);
+  const isStartingRef = useRef(false);
 
   const insets = useSafeAreaInsets();
 
@@ -48,22 +49,32 @@ export default function HomeScreen() {
   };
 
   const playSound = useCallback(async () => {
+    if (isStartingRef.current) return;
+    isStartingRef.current = true;
     try {
-      // Ensure any existing player is stopped/removed first
+      // If a player already exists, try to reuse it to restart immediately
       if (soundRef.current) {
-        if (subscriptionRef.current) {
-          try {
-            subscriptionRef.current.remove();
-          } catch (e) {}
-          subscriptionRef.current = null;
-        }
-
         try {
-          soundRef.current.pause();
-          soundRef.current.remove();
-        } catch (e) {}
-
-        soundRef.current = null;
+          soundRef.current.seekTo(0);
+          // attempt to play (some players return a promise)
+          const playResult: any = soundRef.current.play();
+          if (playResult && typeof playResult.then === "function") {
+            await playResult;
+          }
+          setIsPlaying(true);
+          return;
+        } catch (e) {
+          // If reuse failed, fall through and recreate the player
+          try {
+            subscriptionRef.current?.remove();
+          } catch (er) {}
+          subscriptionRef.current = null;
+          try {
+            soundRef.current.pause();
+            soundRef.current.remove();
+          } catch (er) {}
+          soundRef.current = null;
+        }
       }
 
       setIsPlaying(true);
@@ -106,7 +117,10 @@ export default function HomeScreen() {
       subscriptionRef.current = subscription;
 
       player.seekTo(0);
-      player.play();
+      const playResult: any = player.play();
+      if (playResult && typeof playResult.then === "function") {
+        await playResult;
+      }
     } catch (error) {
       console.error("Error playing sound:", error);
       setIsPlaying(false);
@@ -115,6 +129,8 @@ export default function HomeScreen() {
         "Playback Error",
         "Could not play the sound. Make sure the file is a valid audio format.",
       );
+    } finally {
+      isStartingRef.current = false;
     }
   }, [customSoundUri]);
 
