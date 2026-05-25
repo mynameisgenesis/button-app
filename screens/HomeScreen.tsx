@@ -340,6 +340,8 @@ export default function HomeScreen() {
             <View style={styles.toggleRow}>
               <Text style={styles.soundInfoLabel}>Stop on press</Text>
               <Switch
+                accessibilityLabel="Stop on press"
+                accessibilityRole="switch"
                 value={stopOnPress}
                 onValueChange={setStopOnPress}
                 thumbColor={
