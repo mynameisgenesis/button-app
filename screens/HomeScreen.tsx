@@ -9,6 +9,7 @@ import {
   Animated,
   Pressable,
   Platform,
+  Switch,
 } from "react-native";
 import {
   createAudioPlayer,
@@ -23,10 +24,12 @@ export default function HomeScreen() {
   const [customSoundUri, setCustomSoundUri] = useState<string | null>(null);
   const [customSoundName, setCustomSoundName] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [stopOnPress, setStopOnPress] = useState(true);
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
   const soundRef = useRef<AudioPlayer | null>(null);
+  const subscriptionRef = useRef<any>(null);
 
   const insets = useSafeAreaInsets();
 
@@ -34,8 +37,8 @@ export default function HomeScreen() {
     Animated.spring(scaleAnim, {
       toValue: pressed ? 0.92 : 1,
       useNativeDriver: true,
-      speed: 20,
-      bounciness: 5,
+      speed: 10,
+      bounciness: 7,
     }).start();
 
     Animated.timing(glowAnim, {
@@ -46,10 +49,20 @@ export default function HomeScreen() {
 
   const playSound = useCallback(async () => {
     try {
-      // Stop/remove current player
+      // Ensure any existing player is stopped/removed first
       if (soundRef.current) {
-        soundRef.current.pause();
-        soundRef.current.remove();
+        if (subscriptionRef.current) {
+          try {
+            subscriptionRef.current.remove();
+          } catch (e) {}
+          subscriptionRef.current = null;
+        }
+
+        try {
+          soundRef.current.pause();
+          soundRef.current.remove();
+        } catch (e) {}
+
         soundRef.current = null;
       }
 
@@ -74,9 +87,14 @@ export default function HomeScreen() {
         (status) => {
           if (status.didJustFinish) {
             setIsPlaying(false);
-            subscription.remove();
+            try {
+              subscriptionRef.current?.remove();
+            } catch (e) {}
+            subscriptionRef.current = null;
 
-            player.remove();
+            try {
+              player.remove();
+            } catch (e) {}
 
             if (soundRef.current === player) {
               soundRef.current = null;
@@ -84,6 +102,8 @@ export default function HomeScreen() {
           }
         },
       );
+
+      subscriptionRef.current = subscription;
 
       player.seekTo(0);
       player.play();
@@ -97,6 +117,29 @@ export default function HomeScreen() {
       );
     }
   }, [customSoundUri]);
+
+  const stopSound = useCallback(() => {
+    try {
+      if (subscriptionRef.current) {
+        try {
+          subscriptionRef.current.remove();
+        } catch (e) {}
+        subscriptionRef.current = null;
+      }
+
+      if (soundRef.current) {
+        try {
+          soundRef.current.pause();
+          soundRef.current.remove();
+        } catch (e) {}
+        soundRef.current = null;
+      }
+    } catch (e) {
+      console.warn("Error stopping sound", e);
+    } finally {
+      setIsPlaying(false);
+    }
+  }, []);
 
   const handlePickSound = async () => {
     try {
@@ -156,7 +199,17 @@ export default function HomeScreen() {
           onPressIn={() => animatePress(true)}
           onPressOut={() => {
             animatePress(false);
-            playSound();
+          }}
+          onPress={() => {
+            if (isPlaying) {
+              if (stopOnPress) {
+                stopSound();
+              } else {
+                void playSound();
+              }
+            } else {
+              void playSound();
+            }
           }}
         >
           <Animated.View
@@ -227,6 +280,39 @@ export default function HomeScreen() {
                 <Text style={styles.clearBtnText}>↩ Use Default Sound</Text>
               </TouchableOpacity>
             )}
+
+            {isPlaying && (
+              <TouchableOpacity
+                style={[styles.clearBtn, { marginTop: 8 }]}
+                onPress={() => stopSound()}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.clearBtnText}>⏹ Stop Sound</Text>
+              </TouchableOpacity>
+            )}
+
+            <View style={{ height: 8 }} />
+
+            <View style={styles.toggleRow}>
+              <Text style={styles.soundInfoLabel}>Stop on press</Text>
+              <Switch
+                value={stopOnPress}
+                onValueChange={setStopOnPress}
+                thumbColor={
+                  Platform.OS === "android"
+                    ? stopOnPress
+                      ? "#fff"
+                      : "#fff"
+                    : undefined
+                }
+                trackColor={{ false: "#333", true: "#ff4444" }}
+              />
+            </View>
+
+            <Text style={styles.smallHint}>
+              When enabled, tapping the big button while audio is playing will
+              stop playback. When disabled, tapping will restart the sound.
+            </Text>
 
             <Text style={styles.hint}>
               Supports MP3, WAV, AAC, and most common audio formats.
@@ -425,5 +511,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: "center",
     lineHeight: 18,
+  },
+  smallHint: {
+    color: "#555",
+    fontSize: 12,
+    textAlign: "center",
+    lineHeight: 16,
+    marginTop: 6,
+  },
+  toggleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 6,
+    paddingHorizontal: 4,
   },
 });
