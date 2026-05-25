@@ -25,7 +25,7 @@ export default function HomeScreen() {
   const [customSoundUri, setCustomSoundUri] = useState<string | null>(null);
   const [customSoundName, setCustomSoundName] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [stopOnPress, setStopOnPress] = useState(true);
+  const [stopOnPress, setStopOnPress] = useState(false);
   const STOP_ON_PRESS_KEY = "stopOnPress.v1";
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
