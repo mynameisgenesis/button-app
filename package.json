@@ -5,7 +5,8 @@
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
-    "ios": "expo start --ios"
+    "ios": "expo start --ios",
+    "ci:publish-check": "npx tsc --noEmit && node ./scripts/validate-publish.js"
   },
   "dependencies": {
     "@types/react-native": "~0.69.1",
