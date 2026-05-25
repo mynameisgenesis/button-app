@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import {
 } from "expo-audio";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as DocumentPicker from "expo-document-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HomeScreen() {
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -25,12 +26,39 @@ export default function HomeScreen() {
   const [customSoundName, setCustomSoundName] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [stopOnPress, setStopOnPress] = useState(true);
+  const STOP_ON_PRESS_KEY = "stopOnPress.v1";
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
   const soundRef = useRef<AudioPlayer | null>(null);
   const subscriptionRef = useRef<any>(null);
   const isStartingRef = useRef(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const raw = await AsyncStorage.getItem(STOP_ON_PRESS_KEY);
+        if (raw !== null) {
+          setStopOnPress(raw === "true");
+        }
+      } catch (e) {
+        // ignore
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        await AsyncStorage.setItem(
+          STOP_ON_PRESS_KEY,
+          stopOnPress ? "true" : "false",
+        );
+      } catch (e) {
+        // ignore
+      }
+    })();
+  }, [stopOnPress]);
 
   const insets = useSafeAreaInsets();
 

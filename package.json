@@ -5,11 +5,19 @@
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
+    "build:android:dev": "eas build --platform android --profile development",
+    "android:staging": "eas build --platform android --profile staging",
+    "android:release": "eas build --platform android --profile production",
+    "web": "expo start --web",
     "ios": "expo start --ios",
+    "ios:dev": "eas build --platform ios --profile development",
+    "ios:staging": "eas build --platform ios --profile staging",
+    "ios:release": "eas build --platform ios --profile production",
     "ci:publish-check": "npx tsc --noEmit && node ./scripts/validate-publish.js"
   },
   "dependencies": {
     "@types/react-native": "~0.69.1",
+    "@react-native-async-storage/async-storage": "^1.19.0",
     "expo": "^55.0.0",
     "expo-audio": "~55.0.14",
     "expo-dev-client": "~55.0.32",
