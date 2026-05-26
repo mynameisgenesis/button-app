@@ -39,7 +39,8 @@
           "iCloudContainerEnvironment": "Production"
         }
       ],
-      "expo-audio"
+      "expo-audio",
+      "expo-status-bar"
     ],
     "extra": {
       "eas": {

@@ -11,24 +11,26 @@
     "web": "expo start --web",
     "ios": "expo start --ios",
     "ios:dev": "eas build --platform ios --profile development",
-    "ios:staging": "eas build --platform ios --profile staging",
-    "ios:release": "eas build --platform ios --profile production",
+    "ios:preview": "eas build --platform ios --profile preview",
+    "ios:prod": "eas build --platform ios --profile production",
+    "ios:release": "eas build --platform ios --profile production --auto-submit",
     "test": "jest --runInBand",
-    "ci:publish-check": "npx tsc --noEmit && node ./scripts/validate-publish.js"
+    "ci:publish-check": "npx tsc --noEmit && node ./scripts/validate-publish.js",
+    "postinstall": "patch-package"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^1.19.0",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "@types/jest": "29.5.14",
     "@types/react-native": "~0.69.1",
     "expo": "^56.0.4",
-    "expo-audio": "~55.0.14",
-    "expo-dev-client": "~55.0.32",
-    "expo-document-picker": "~55.0.13",
-    "expo-status-bar": "~55.0.5",
+    "expo-audio": "~56.0.10",
+    "expo-dev-client": "~56.0.15",
+    "expo-document-picker": "~56.0.4",
+    "expo-status-bar": "~56.0.4",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-native": "0.83.6",
-    "react-native-safe-area-context": "^5.7.0"
+    "react-native": "0.85.3",
+    "react-native-safe-area-context": "~5.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
@@ -40,7 +42,8 @@
     "babel-preset-expo": "^56.0.4",
     "jest": "^29.7.0",
     "jest-expo": "^56.0.4",
+    "patch-package": "^7.0.0",
     "react-test-renderer": "19.2.3",
-    "typescript": "~5.9.2"
+    "typescript": "~6.0.3"
   }
 }
