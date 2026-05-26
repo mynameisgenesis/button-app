@@ -1,14 +1,11 @@
 {
   "expo": {
     "name": "Big Red Button",
-    "slug": "sound-button",
+    "slug": "big-red-button",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/splash.png",
     "userInterfaceStyle": "dark",
-    "splash": {
-      "backgroundColor": "#0d0d0d"
-    },
     "ios": {
       "supportsTablet": false,
       "infoPlist": {
